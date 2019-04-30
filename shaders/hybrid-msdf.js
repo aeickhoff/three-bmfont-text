@@ -4,6 +4,8 @@ export function createHybridMSDFShader (opt) {
   opt = opt || {};
   var opacity = typeof opt.opacity === 'number' ? opt.opacity : 1;
   var alphaTest = typeof opt.alphaTest === 'number' ? opt.alphaTest : 0.0001;
+   // to make the appearance between methods match better and improve legibility when afar (derived empirically)
+  var alphaMatchMultiplier = typeof opt.alphaMatchMultiplier === 'number' ? opt.alphaMatchMultiplier : 1.2;
   var precision = opt.precision || 'highp';
   var color = opt.color;
   var map = opt.map;
@@ -85,7 +87,7 @@ void main() {
     float sigDist = median(tex.r, tex.g, tex.b) - 0.5;
     alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
   } else {
-    alpha = tex.a;  // if minified, use mipmap
+    alpha = tex.a * ${alphaMatchMultiplier};  // if minified, use mipmap
   }
   glFragColor = vec4(outColor.rgb, alpha * opacity);
   if (glFragColor.a < ${alphaTest}) discard;
@@ -124,7 +126,7 @@ void main() {
     float sigDist = median(tex.r, tex.g, tex.b) - 0.5;
     alpha = clamp(sigDist/fwidth(sigDist) + 0.5, 0.0, 1.0);
   } else {
-    alpha = tex.a;  // if minified, use mipmap
+    alpha = tex.a * ${alphaMatchMultiplier};  // if minified, use mipmap
   }
   gl_FragColor = vec4(outColor.rgb, alpha * opacity);
   if (gl_FragColor.a < ${alphaTest}) discard;
